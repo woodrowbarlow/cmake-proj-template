@@ -4,7 +4,7 @@
 #include "gui/gui.h"
 #include "util/util.h"
 
-int main(int argc, char *argv[])
+int main(void)
 {
     printf("Example Application %s\n", VERSION_STRING);
     printf("Branch: %s\n", GIT_BRANCH);

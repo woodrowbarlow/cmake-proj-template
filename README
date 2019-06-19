@@ -3,12 +3,7 @@ projects based on the way I like to organize them. The various branches
 are for different purposes, like cross-compiling. All of them will
 target CMake 3.0 for now.
 
-From the top level of this repository:
-
-    mkdir build && cd build
-    cmake ..
     make
-    ls dist
     ./dist/bin/example
 
-These templates are released to the public domain.
+This template is released to the public domain.

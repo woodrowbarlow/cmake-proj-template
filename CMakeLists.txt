@@ -25,24 +25,35 @@
 # me. or maybe i'll just deal with it. or maybe i'll find a hack that's
 # just elegant enough i'd rather deal with the hack.
 
+# edit: i've hacked together a Makefile. haven't decided how i feel
+# about it yet.
+
 cmake_minimum_required(VERSION 3.0)
 
 project(example)
 set(EXAMPLE_VERSION_MAJOR 1)
 set(EXAMPLE_VERSION_MINOR 0)
 
-execute_process(
-    COMMAND git rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE EXAMPLE_GIT_BRANCH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-    COMMAND git log -1 --format=%h
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE EXAMPLE_GIT_REVISION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+find_package(Git)
+if(GIT_FOUND)
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE EXAMPLE_GIT_BRANCH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" log -1 --format=%h
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE EXAMPLE_GIT_REVISION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+else()
+    set(EXAMPLE_GIT_BRANCH "")
+    set(EXAMPLE_GIT_REVISION "")
+endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --std=c99 -Wall -Werror -Wextra")
 
 file(
     GLOB_RECURSE EXAMPLE_SOURCES
@@ -51,12 +62,12 @@ file(
 
 set(EXAMPLE_INCLUDE "${PROJECT_SOURCE_DIR}/inc/")
 
-configure_file (
+configure_file(
     "${EXAMPLE_INCLUDE}/config.h.in"
     "${CMAKE_BINARY_DIR}/inc/config.h"
 )
 
-add_executable (example "${EXAMPLE_SOURCES}")
+add_executable(example "${EXAMPLE_SOURCES}")
 target_include_directories(
     example PRIVATE
     "${CMAKE_BINARY_DIR}/inc" "${EXAMPLE_INCLUDE}"
@@ -64,7 +75,7 @@ target_include_directories(
 
 set_target_properties(example
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/dist/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/dist/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/dist/bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/dist/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/dist/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/dist/bin"
 )
